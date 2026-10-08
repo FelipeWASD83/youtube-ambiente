@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>YouTube Ambiente</title>
+<link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <h1>YouTube Ambiente</h1>
+
+  <label class="linha">
+    <span>
+      <b>Qualidade máxima</b>
+      <small>Escolhe a maior resolução de cada vídeo</small>
+    </span>
+    <input type="checkbox" id="qualidade" role="switch">
+  </label>
+
+  <label class="linha">
+    <span>
+      <b>Luz ambiente</b>
+      <small>Espalha a cor da borda do vídeo pela aba</small>
+    </span>
+    <input type="checkbox" id="luz" role="switch">
+  </label>
+
+  <div class="ajustes" id="ajustes">
+    <label class="barra">
+      <span>Intensidade <output id="saida-intensidade"></output></span>
+      <input type="range" id="intensidade" min="0" max="100" step="1">
+    </label>
+    <label class="barra">
+      <span>Desfoque <output id="saida-desfoque"></output></span>
+      <input type="range" id="desfoque" min="0" max="120" step="1">
+    </label>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

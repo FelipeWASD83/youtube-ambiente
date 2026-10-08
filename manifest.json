@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "YouTube Ambiente",
+  "version": "1.0",
+  "description": "No YouTube: põe a maior qualidade disponível sozinho e espalha a luz do vídeo pela aba inteira.",
+  "permissions": ["storage"],
+  "action": {
+    "default_title": "YouTube Ambiente",
+    "default_popup": "popup/popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "js": ["qualidade.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "js": ["ambiente.js"],
+      "css": ["ambiente.css"],
+      "run_at": "document_start"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+/* Painel pequeno, usado de relance: segue o tema do sistema, uma cor de acao so
+   (verde-azulado) e nada de enfeite. */
+:root {
+  color-scheme: light dark;
+  --fundo: #f4f3ef;
+  --tinta: #1d2125;
+  --apagado: #5d656d;
+  --linha: #d9d7cf;
+  --acao: #0f7d78;
+  --trilho: #c8c6bd;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fundo: #1c1f22;
+    --tinta: #eceae4;
+    --apagado: #9aa1a8;
+    --linha: #343a3f;
+    --acao: #35b5ad;
+    --trilho: #444b51;
+  }
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  width: 320px;
+  padding: 16px;
+  background: var(--fundo);
+  color: var(--tinta);
+  font: 14px/1.35 "Segoe UI", system-ui, sans-serif;
+}
+h1 { margin: 0 0 12px; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--apagado); }
+
+.linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-top: 1px solid var(--linha);
+  cursor: pointer;
+}
+.linha b { display: block; font-weight: 600; }
+.linha small { display: block; margin-top: 2px; color: var(--apagado); font-size: 12px; }
+
+input[type="checkbox"] {
+  appearance: none;
+  flex: none;
+  width: 40px;
+  height: 22px;
+  margin: 0;
+  border-radius: 11px;
+  background: var(--trilho);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+input[type="checkbox"]::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.15s;
+}
+input[type="checkbox"]:checked { background: var(--acao); }
+input[type="checkbox"]:checked::after { transform: translateX(18px); }
+input:focus-visible { outline: 2px solid var(--acao); outline-offset: 2px; }
+
+.ajustes { padding: 4px 0 0; border-top: 1px solid var(--linha); }
+.ajustes.desligado { opacity: 0.4; pointer-events: none; }
+.barra { display: block; padding: 10px 0 4px; }
+.barra span { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.barra output { color: var(--apagado); font-variant-numeric: tabular-nums; }
+input[type="range"] { width: 100%; accent-color: var(--acao); margin: 0; }

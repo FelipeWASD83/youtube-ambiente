@@ -1,0 +1,49 @@
+/* Tudo daqui so vale com a luz ligada (data-ya-luz) e, para o fundo, so
+   enquanto ela esta de fato aparecendo (data-ya-ativa). Desligou, a pagina
+   volta a ser a do YouTube sem sobrar nada. */
+
+/* A luz nativa do YouTube brigaria com a nossa. */
+html[data-ya-luz="1"] #cinematics { display: none !important; }
+
+#ya-luz {
+  position: fixed;
+  inset: 0;
+  z-index: -1;            /* acima do fundo do <html>, abaixo de todo o conteudo */
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+html[data-ya-ativa] #ya-luz { opacity: var(--ya-intensidade, 0.8); }
+
+#ya-luz canvas { position: absolute; left: 0; top: 0; }
+
+/* Cobre a aba inteira: so a cor media, bem borrada. */
+#ya-luz .longe {
+  width: 100%;
+  height: 100%;
+  transform: scale(1.25);
+  filter: blur(calc(var(--ya-desfoque, 40px) * 2)) saturate(1.3);
+  opacity: 0.75;
+}
+
+/* Cola no video: e a cor da borda que vaza para os lados. */
+#ya-luz .perto {
+  filter: blur(var(--ya-desfoque, 40px)) saturate(1.7) brightness(1.15);
+  -webkit-mask-image: radial-gradient(closest-side, #000 58%, transparent 100%);
+          mask-image: radial-gradient(closest-side, #000 58%, transparent 100%);
+}
+
+/* Para a luz aparecer, as camadas de fundo da pagina precisam deixar passar. */
+html[data-ya-ativa] body,
+html[data-ya-ativa] ytd-app,
+html[data-ya-ativa] ytd-page-manager,
+html[data-ya-ativa] ytd-watch-flexy,
+html[data-ya-ativa] #masthead-container,
+html[data-ya-ativa] ytd-masthead,
+html[data-ya-ativa] ytd-masthead #container,
+html[data-ya-ativa] ytd-masthead #background,
+html[data-ya-ativa] tp-yt-app-drawer #contentContainer,
+html[data-ya-ativa] ytd-mini-guide-renderer {
+  background: transparent !important;
+}
