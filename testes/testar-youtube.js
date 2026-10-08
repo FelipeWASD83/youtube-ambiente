@@ -209,7 +209,7 @@ function anotar(nome, ok, obtido) {
     anotar('luz ambiente ativada na pagina /watch', ativa === true, ativa);
 
     const info = await avaliar(`(() => { const v = document.querySelector('video.html5-main-video').getBoundingClientRect();
-      const p = document.querySelector('#ya-luz .perto'); const g = p.getContext('2d');
+      const p = document.querySelector('#ya-luz canvas'); const g = p.getContext('2d');
       const d = g.getImageData(0, 0, p.width, p.height).data; let s = 0; for (let i = 0; i < d.length; i += 4) s += d[i] + d[i+1] + d[i+2];
       return { video: { x: Math.round(v.left), y: Math.round(v.top), w: Math.round(v.width), h: Math.round(v.height) },
                canvas: p.width + 'x' + p.height, brilhoCanvas: Math.round(s / (d.length / 4 * 3)),
@@ -219,13 +219,14 @@ function anotar(nome, ok, obtido) {
 
     await avaliar('window.scrollTo(0,0)');
     const pLigada = await print('01-ligada-1896x1062');
-    // faixa logo a direita do video: so pode ter cor se a luz estiver aparecendo
-    const ladoLigada = await medir(pLigada, info.video.x + info.video.w + 4, info.video.y + 40, 120, 200);
+    // faixa vazia (so fundo) entre a borda da janela e o video: so muda se a luz estiver aparecendo
+    const ladoLigada = await medir(pLigada, 2, info.video.y + 20, 12, 400);
     await opcao('luz', false);
     const pDesl = await print('02-desligada-1896x1062');
-    const ladoDesl = await medir(pDesl, info.video.x + info.video.w + 4, info.video.y + 40, 120, 200);
+    const ladoDesl = await medir(pDesl, 2, info.video.y + 20, 12, 400);
     const limpo = await avaliar(`({ ativa: document.documentElement.hasAttribute('data-ya-ativa'), cinematics: !!document.querySelector('#ya-luz') && getComputedStyle(document.getElementById('ya-luz')).opacity })`);
-    anotar('luz vaza cor para o lado do video', ladoLigada.cor > ladoDesl.cor + 6, { ligada: ladoLigada, desligada: ladoDesl });
+    anotar('luz aparece no fundo ao lado do video',
+      Math.abs(ladoLigada.lum - ladoDesl.lum) + Math.abs(ladoLigada.cor - ladoDesl.cor) >= 8, { ligada: ladoLigada, desligada: ladoDesl });
     anotar('desligar pelas opcoes apaga a luz', limpo.ativa === false && Number(limpo.cinematics) === 0, limpo);
     await opcao('luz', true);
 

@@ -44,14 +44,24 @@ este arquivo existe para não refazer descoberta que já custou teste. Criado em
 
 ## 3. Luz ambiente: as decisões
 
-- Dois canvases de **64 px de largura**, desenhados a cada quadro novo do vídeo
-  (`requestVideoFrameCallback`, no máximo uns 30 por segundo). A cor é o que
-  importa; o resto é o CSS esticando e embaçando.
-  - `.longe`: cobre a aba toda, só a cor média.
-  - `.perto`: 1,5x o vídeo, centrado nele, com máscara radial. É ele que faz a
-    cor da borda vazar para os lados.
-- O quadro é desenhado **maior que o canvas (`FOLGA`)** porque o desfoque do
-  canvas come a borda e deixaria uma moldura transparente.
+- **Só a faixa da borda do vídeo, repetida para fora** (decisão dele em 08/10/2026:
+  a primeira versão esticava o vídeo inteiro embaçado e ele não queria isso).
+  Um canvas único, onde cada pixel vale ~12 px da tela: no meio o vídeo
+  (some atrás do player), em volta uma margem de `F` pixels. Cada lado é uma
+  faixa de ~1,2% do vídeo (`BORDA`) esticada por toda a margem; cada canto é um
+  quadradinho do canto esticado (`ambiente.js`, função `desenhar`). Não é
+  espelho: a cor da borda continua reta para fora, e o CSS embaça e esmaece.
+- O esmaecimento é uma `mask-image` com dois gradientes multiplicados
+  (`mask-composite: intersect`), horizontal e vertical, que somem nas pontas;
+  `--fx` e `--fy` (calculados no JS) dizem quanto do canvas é margem. Cheia no
+  meio, onde está o vídeo.
+- Alcance: `F = lado maior do vídeo x 0,8 x alcance%` (teto de 1400 px). O
+  alcance é a opção do popup.
+- O desenho usa `ctx.filter = 'blur(1.5px)'` e `imageSmoothingQuality = 'high'`
+  porque reduzir um quadro 4K para 100 px sem isso dá serrilhado.
+- Mudar o tamanho do canvas limpa ele: a variável `sujo` força um redesenho no
+  render seguinte (senão a luz some até o próximo quadro, e some de vez com o
+  vídeo pausado).
 - O vídeo é medido pelo retângulo do próprio `<video>` (que no YouTube já é a
   área da imagem, sem as faixas pretas), não pelo `#movie_player`.
 - `#ya-luz` é `position: fixed; z-index: -1`: fica acima do fundo do `<html>` e
@@ -78,7 +88,7 @@ node testes\testar-youtube.js --claro --avaliar arquivo.js   # roda um script na
 
 Sobe um Brave descartável (perfil próprio, **sem som**, `--mute-audio`), carrega a
 pasta, abre um vídeo de verdade do YouTube e confere: qualidade, prova de que foi a
-extensão, luz com cor ao lado do vídeo (medida em pixels de screenshot), tema
+extensão, luz no fundo ao lado do vídeo (medida em pixels de screenshot, na faixa vazia à esquerda do player), tema
 claro e desligar pelas opções. É teste **ao vivo**: precisa de internet e anúncio
 ou rede ruim atrasam o player. Se falhar na abertura do vídeo (já aconteceu, sem
 que o código tivesse mudado), rodar de novo antes de culpar a extensão. O teste
