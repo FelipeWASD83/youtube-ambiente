@@ -62,7 +62,7 @@ este arquivo existe para não refazer descoberta que já custou teste. Criado em
   (`mask-composite: intersect`), horizontal e vertical, que somem nas pontas;
   `--fx` e `--fy` (calculados no JS) dizem quanto do canvas é margem. Cheia no
   meio, onde está o vídeo.
-- Alcance: `F = lado maior do vídeo x 0,8 x alcance%` (teto de 1400 px). O
+- Alcance: `F = lado maior do vídeo x 1,1 x alcance%` (teto de 1900 px; era 0,8 e 1400 até 08/10/2026, ele pediu mais distância). O
   alcance é a opção do popup.
 - `imageSmoothingQuality = 'high'` na miniatura: reduzir um quadro 4K para ~100 px
   sem isso dá serrilhado.

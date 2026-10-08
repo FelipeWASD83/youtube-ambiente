@@ -29,7 +29,7 @@
   // ----------------------------------------------------------------- canvas
   const PX = 12;           // cada pixel do canvas vale ~12 px da tela: a cor e o que importa
   const SETORES = 360;     // quantos raios saem do video (cada um leva a cor de um ponto da borda)
-  const ALCANCE = 0.8;     // ate onde a luz vai, em multiplos do lado maior do video (com alcance 100%)
+  const ALCANCE = 1.1;     // ate onde a luz vai, em multiplos do lado maior do video (com alcance 100%)
 
   const caixa = document.createElement('div');
   caixa.id = 'ya-luz';
@@ -60,7 +60,7 @@
   function medir(v) {
     const r = v.getBoundingClientRect();
     if (!r.width || !r.height) return null;
-    const F = Math.min(1400, Math.max(r.width, r.height) * ALCANCE * (cfg.alcance / 100));
+    const F = Math.min(1900, Math.max(r.width, r.height) * ALCANCE * (cfg.alcance / 100));
     const bw = Math.max(8, Math.round(r.width / PX));
     const bh = Math.max(8, Math.round(r.height / PX));
     const mf = Math.max(4, Math.round(F / PX));
