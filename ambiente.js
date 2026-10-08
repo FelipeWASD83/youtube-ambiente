@@ -1,9 +1,10 @@
 // Mundo isolado da extensao. Faz duas coisas:
 //  1. le as opcoes (chrome.storage) e as publica no <html>, para o qualidade.js
 //     (que roda no mundo da pagina e nao enxerga o storage) e para o CSS;
-//  2. a luz ambiente: pega so a FAIXA da borda do video (esquerda, direita, topo,
-//     base e os quatro cantos) e a repete para fora, num canvas pequeno que o CSS
-//     estica, embaça e esmaece com a distancia, atras da pagina inteira.
+//  2. a luz ambiente: pega so a BORDA do video e a repete para fora em LEQUE (cada
+//     ponto da borda sai na direcao que vai do centro do video ate ele, entao os
+//     lados saem em angulos diferentes e os cantos na diagonal), num canvas pequeno
+//     que o CSS estica, embaça e esmaece com a distancia, atras da pagina inteira.
 (() => {
   const PADRAO = { qualidade: true, luz: true, intensidade: 80, desfoque: 30, alcance: 100 };
   const raiz = document.documentElement;
@@ -27,7 +28,7 @@
 
   // ----------------------------------------------------------------- canvas
   const PX = 12;           // cada pixel do canvas vale ~12 px da tela: a cor e o que importa
-  const BORDA = 0.012;     // espessura da faixa copiada, em fracao do video
+  const SETORES = 360;     // quantos raios saem do video (cada um leva a cor de um ponto da borda)
   const ALCANCE = 0.8;     // ate onde a luz vai, em multiplos do lado maior do video (com alcance 100%)
 
   const caixa = document.createElement('div');
@@ -86,25 +87,56 @@
     return true;
   }
 
+  // O video em miniatura (bw x bh): dele se le a cor da borda, e ele tambem vai no
+  // meio do canvas para o desfoque nao ter um buraco na emenda com o player.
+  const mini = document.createElement('canvas');
+  const ctxMini = mini.getContext('2d', { willReadFrequently: true });
+
   function desenhar(v) {
     if (v.readyState < 2 || !geo) return;
     const { bw, bh, mf } = geo;
-    const vw = v.videoWidth, vh = v.videoHeight;
-    const ex = Math.max(2, Math.round(vw * BORDA));
-    const ey = Math.max(2, Math.round(vh * BORDA));
+    if (mini.width !== bw || mini.height !== bh) { mini.width = bw; mini.height = bh; }
+    ctxMini.imageSmoothingQuality = 'high';
+    ctxMini.drawImage(v, 0, 0, bw, bh);
+    let pix;
+    try { pix = ctxMini.getImageData(0, 0, bw, bh).data; } catch { return; }
+
     ctx.clearRect(0, 0, luz.width, luz.height);
-    ctx.imageSmoothingQuality = 'high';
-    ctx.filter = 'blur(1.5px)';
-    ctx.drawImage(v, 0, 0, vw, vh, mf, mf, bw, bh);                       // meio (some atras do video)
-    ctx.drawImage(v, 0, 0, ex, vh, 0, mf, mf, bh);                        // esquerda
-    ctx.drawImage(v, vw - ex, 0, ex, vh, mf + bw, mf, mf, bh);            // direita
-    ctx.drawImage(v, 0, 0, vw, ey, mf, 0, bw, mf);                        // topo
-    ctx.drawImage(v, 0, vh - ey, vw, ey, mf, mf + bh, bw, mf);            // base
-    ctx.drawImage(v, 0, 0, ex, ey, 0, 0, mf, mf);                         // cantos
-    ctx.drawImage(v, vw - ex, 0, ex, ey, mf + bw, 0, mf, mf);
-    ctx.drawImage(v, 0, vh - ey, ex, ey, 0, mf + bh, mf, mf);
-    ctx.drawImage(v, vw - ex, vh - ey, ex, ey, mf + bw, mf + bh, mf, mf);
+    ctx.drawImage(mini, mf, mf);
+
+    // Cada raio parte do centro, atravessa o ponto da borda do video (A) e vai ate a
+    // beirada da margem (B). Os setores se sobrepõem um pouco para nao abrir fresta.
+    const cx = mf + bw / 2, cy = mf + bh / 2;
+    const hw = bw / 2, hh = bh / 2;
+    const HW = hw + mf, HH = hh + mf;
+    const passo = (2 * Math.PI) / SETORES;
+    const alcancar = (c, s, mx, my) => Math.min(mx / (Math.abs(c) || 1e-6), my / (Math.abs(s) || 1e-6));
+    for (let i = 0; i < SETORES; i++) {
+      const a0 = i * passo, a1 = a0 + passo * 1.6, am = a0 + passo / 2;
+      const c0 = Math.cos(a0), s0 = Math.sin(a0), c1 = Math.cos(a1), s1 = Math.sin(a1);
+      const cm = Math.cos(am), sm = Math.sin(am);
+      // cor: um pontinho para dentro da borda, na direcao do meio do setor
+      const tm = alcancar(cm, sm, hw, hh) - 1.5;
+      const x = Math.min(bw - 1, Math.max(0, Math.round(hw + cm * tm)));
+      const y = Math.min(bh - 1, Math.max(0, Math.round(hh + sm * tm)));
+      const k = (y * bw + x) * 4;
+      ctx.fillStyle = `rgb(${pix[k]},${pix[k + 1]},${pix[k + 2]})`;
+      const ta0 = alcancar(c0, s0, hw, hh), ta1 = alcancar(c1, s1, hw, hh);
+      const tb0 = alcancar(c0, s0, HW, HH), tb1 = alcancar(c1, s1, HW, HH);
+      ctx.beginPath();
+      ctx.moveTo(cx + c0 * ta0, cy + s0 * ta0);
+      ctx.lineTo(cx + c0 * tb0, cy + s0 * tb0);
+      ctx.lineTo(cx + c1 * tb1, cy + s1 * tb1);
+      ctx.lineTo(cx + c1 * ta1, cy + s1 * ta1);
+      ctx.closePath();
+      ctx.fill();
+    }
+    // um desfoque leve de uma vez so tira o degrau entre um raio e o vizinho
+    ctx.globalCompositeOperation = 'copy';
+    ctx.filter = 'blur(2px)';
+    ctx.drawImage(luz, 0, 0);
     ctx.filter = 'none';
+    ctx.globalCompositeOperation = 'source-over';
     sujo = false;
   }
 

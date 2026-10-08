@@ -44,21 +44,28 @@ este arquivo existe para não refazer descoberta que já custou teste. Criado em
 
 ## 3. Luz ambiente: as decisões
 
-- **Só a faixa da borda do vídeo, repetida para fora** (decisão dele em 08/10/2026:
-  a primeira versão esticava o vídeo inteiro embaçado e ele não queria isso).
-  Um canvas único, onde cada pixel vale ~12 px da tela: no meio o vídeo
-  (some atrás do player), em volta uma margem de `F` pixels. Cada lado é uma
-  faixa de ~1,2% do vídeo (`BORDA`) esticada por toda a margem; cada canto é um
-  quadradinho do canto esticado (`ambiente.js`, função `desenhar`). Não é
-  espelho: a cor da borda continua reta para fora, e o CSS embaça e esmaece.
+- **Só a borda do vídeo, repetida para fora em leque** (decisões dele em
+  08/10/2026: a primeira versão esticava o vídeo inteiro embaçado; a segunda
+  esticava a borda reta, só na horizontal nos lados e na vertical em cima e
+  embaixo; ele pediu "diferentes angulações"). Um canvas único, onde cada pixel
+  vale ~12 px da tela: no meio o vídeo (some atrás do player), em volta uma
+  margem de `F` pixels. Da borda saem `SETORES` (360) raios a partir do **centro
+  do vídeo**: cada um atravessa um ponto da borda, leva a cor dele (lida de uma
+  miniatura do vídeo, `mini`, por `getImageData`) e vai até a beirada da margem.
+  Lados saem inclinados, cantos saem na diagonal. Função `desenhar`.
+- Os setores se sobrepõem 60% de propósito: sem isso o antialiasing abre uma
+  fresta escura entre dois quadriláteros. Depois um `blur(2px)` único no canvas
+  tira o degrau entre raios vizinhos.
+- Se o `getImageData` falhar (canvas marcado como contaminado), a função sai sem
+  desenhar e a luz fica parada no último quadro.
 - O esmaecimento é uma `mask-image` com dois gradientes multiplicados
   (`mask-composite: intersect`), horizontal e vertical, que somem nas pontas;
   `--fx` e `--fy` (calculados no JS) dizem quanto do canvas é margem. Cheia no
   meio, onde está o vídeo.
 - Alcance: `F = lado maior do vídeo x 0,8 x alcance%` (teto de 1400 px). O
   alcance é a opção do popup.
-- O desenho usa `ctx.filter = 'blur(1.5px)'` e `imageSmoothingQuality = 'high'`
-  porque reduzir um quadro 4K para 100 px sem isso dá serrilhado.
+- `imageSmoothingQuality = 'high'` na miniatura: reduzir um quadro 4K para ~100 px
+  sem isso dá serrilhado.
 - Mudar o tamanho do canvas limpa ele: a variável `sujo` força um redesenho no
   render seguinte (senão a luz some até o próximo quadro, e some de vez com o
   vídeo pausado).

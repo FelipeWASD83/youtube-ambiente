@@ -3,7 +3,7 @@
 Extensão do Brave que faz duas coisas dentro do YouTube:
 
 1. **Qualidade máxima automática.** Em cada vídeo, escolhe sozinha a maior resolução que o player oferece (4K, 8K, o que tiver). Refaz a escolha quando o vídeo muda e quando um anúncio acaba.
-2. **Luz ambiente própria.** Pega só a borda do vídeo (esquerda, direita, cima, baixo e os cantos) e repete essa cor para fora, embaçando e sumindo com a distância, como um brilho saindo do player. O fundo do YouTube deixa a luz passar. Funciona no tema escuro e no claro, e a luz nativa do YouTube é escondida para não brigar com esta.
+2. **Luz ambiente própria.** Pega só a borda do vídeo e repete essa cor para fora em leque, a partir do centro: cada trecho da borda sai num ângulo diferente (os lados inclinados, os cantos na diagonal), embaçando e sumindo com a distância, como um brilho saindo do player. O fundo do YouTube deixa a luz passar. Funciona no tema escuro e no claro, e a luz nativa do YouTube é escondida para não brigar com esta.
 
 ## Instalar
 
