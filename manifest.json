@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "YouTube Ambiente",
-  "version": "1.0",
+  "version": "1.0.0",
   "description": "No YouTube: põe a maior qualidade disponível sozinho e espalha a luz do vídeo pela aba inteira.",
   "permissions": ["storage"],
   "action": {
