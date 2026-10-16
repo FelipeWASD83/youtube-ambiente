@@ -38,3 +38,7 @@ node testes\testar-youtube.js
 ```
 
 Abre um Brave descartável, sem som, carrega a extensão, toca um vídeo de verdade no YouTube e confere a qualidade e a luz. Precisa de internet. Os prints ficam em `testes\prints`.
+
+## Licença
+
+Código sob a licença MIT (arquivo `LICENSE`).
